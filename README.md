@@ -1,3 +1,3 @@
-# Sistemas-Digitais-de-Controle
+# Digital Control Systems Algorithms
 
-Repositório com o propósito de salvar os códigos em assembly da disciplina sistema digitais de controle
+Repository for the purpose of saving the assembly algorithms of the digital control system discipline.
