@@ -1,30 +1,32 @@
-    #INCLUDE <P16F84A.INC>
+    #INCLUDE<P16F84A.INC>
     
-    ORG 0x00
+    ORG 0X00
     GOTO INICIO
     
+    ;--- Se uma entrada é acionada, uma saída deve permanecer acionada enquanto a entrada estiver acionada. ---;
+    
 INICIO
-    CLRF PORTB
     CLRW
     CLRF PORTA
+    CLRF PORTB
     BSF STATUS,RP0
     MOVLW 0
-    MOVWF TRISA
+    MOVWF TRISA             ;porta A toda de saida
     MOVLW 1
-    MOVWF TRISB
+    MOVWF TRISB             ;porta B apenas com o bit 0 de entrada
     BCF STATUS,RP0
-
+    
 MAIN
     BTFSS PORTB,0
-    GOTO APAGA
-    GOTO ACENDE
+    GOTO APAGA          ;se tiver em 0, nao ta pressionado e apaga
+    GOTO ACENDE         ;se tiver em 1 ta pressionado e acende
     
-APAGA
-    BCF PORTA,0
-    GOTO MAIN
-
 ACENDE
     BSF PORTA,0
+    GOTO MAIN
+
+APAGA
+    BCF PORTA,0
     GOTO MAIN
     
     END
