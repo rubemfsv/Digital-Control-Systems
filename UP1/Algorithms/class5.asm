@@ -1,15 +1,18 @@
-; Codigo em assembly que faz o acionamento retentivo de um led, agora na porta A, dois botões devem somar e subtrair o valor da porta B. Ou seja, um botão ao ser clicado deve somar 1 ao valor da porta B e o outro deve subtrair.
-
 
     INCLUDE<P16F84A.INC>
     
     #DEFINE BOTAO0 PORTA,0          ;define o pino 0 de A como o botao 0. SOMA
     #DEFINE BOTAO1 PORTA,1          ;define o pino 1 de A como o botao 1. SUBTRAI
+    TEMP EQU 0X2C                   ;registrador temporario 
     
     ORG 0X00
     GOTO INICIO
     
-    ;--- A CONTEM 2 BOTOES, UM QUE SOMA 1 EM B E OUTRO QUE SUBTRAI 1 EM B ---;
+    ;--- A CONTÉM 2 BOTÕES, UM QUE SOMA 1 EM B E OUTRO QUE SUBTRAI 1 EM B ---;
+    ;--- SE A SOMA PASSAR DE 1O ESSA SOMA NAO DEVE MAIS FUNCIONAR ---;
+    
+    ;--- LÓGICA: FAZER 10 - VALOR ATUAL, SE DER 0 ATIVA O BIT Z (VAI PRA 1) E USA ISSO COMO CONDIÇÃO DE PARADA ---;
+    ;--- SE NAO DER 0 O BIT Z FICA 0 ENTAO PODE REALIZAR A SOMA ---;
     
 INICIO
     CLRW
@@ -33,12 +36,12 @@ MAIN
 BOTAO0_PRESS    
     BTFSS BOTAO0                    
     GOTO BOTAO0_PRESS               ;se ele permanecer em 0 o botao ainda ta pressionado 
-    GOTO SOMA                       ;quando tiver 1 soltou o botao e vai realizar a soma
+    GOTO CHECA_VALOR                ;antes de somar precisa checar se ja chegou a 10
     
 CHECA_BOTAO1
     BTFSS BOTAO1
     GOTO BOTAO1_PRESS               ;se tiver 0 o botao ta pressionado e vai para a label de pressionar
-    GOTO MAIN                       ;se tiver 1 volta o botao ta solto e volta pro comeco para checar o botao 0 novamente
+    GOTO MAIN                       ;se tiver 1 volta o botao ta solto e volta pro começo para checar o botao 0 novamente
       
 BOTAO1_PRESS
     BTFSS BOTAO1
@@ -54,5 +57,15 @@ SOMA
 SUB
     DECF PORTB,1                    ;decrementa 1 no registrador
     GOTO MAIN
+    
+CHECA_VALOR
+    MOVF PORTB,0                    ;coloca o que tem na porta B no registrador de trabalho 
+    MOVWF TEMP                      ;move o que tem no registrador de trabalho para temp
+    MOVLW 0XA                       ;move a constante A que vale 10 para o registrador de trabalho         
+    SUBWF TEMP,0                    ;subtrai o que tem em temp do registrador de trabalho. registrador de trabalho(10) - temp
+    BTFSS STATUS,Z                  ;chegar o valor do bit Z do registrador de trabalho
+    GOTO SOMA                       ;se ele tiver em 0 é pq a subtração nao deu 0
+    GOTO MAIN                       ;se ele tiver 1 é pq a subtração deu 0 então ja atingiu 10
+    
     
     END
